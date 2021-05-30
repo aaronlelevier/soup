@@ -1,0 +1,17 @@
+{application, soup,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {soup_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    % 3rd party
+    mochiweb
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
