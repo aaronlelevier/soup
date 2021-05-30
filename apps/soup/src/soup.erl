@@ -44,7 +44,7 @@ find([H | T] = Elem, Name) ->
       Match
   end;
 
-find([] = Elem, Name) ->
+find(_ = Elem, Name) ->
   ?LOG({Elem, Name}),
   no_match.
 
