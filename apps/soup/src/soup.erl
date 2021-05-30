@@ -7,6 +7,7 @@
 -module(soup).
 -author("Aaron Lelevier").
 -vsn(1.0).
+-include("records.hrl").
 
 -export([]).
 %% debug
@@ -47,4 +48,30 @@ find([H | T] = Elem, Name) ->
 find(_ = Elem, Name) ->
   ?LOG({Elem, Name}),
   no_match.
+
+%% @doc title/2 -> #dom{}
+
+title(Elem) ->
+  Name = <<"title">>,
+  case find(Elem, Name) of
+    {<<"title">>, [], [Content|[]]} ->
+      #dom{name = Name, string = Content};
+    _ ->
+      no_match
+  end.
+
+%% Testing
+
+path() ->
+  filename:join(
+    os:getenv("HOME"),
+    "Documents/erlang/soup/test/data/example.html"
+  ).
+
+bytes() ->
+  {ok, Bytes} = file:read_file(path()),
+  Bytes.
+
+tree() ->
+  mochiweb_html:parse(bytes()).
 
