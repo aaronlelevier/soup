@@ -53,8 +53,8 @@ find(_ = Elem, Name) ->
   ?LOG({Elem, Name}),
   no_match.
 
-%% @doc title/2 -> Returns the html page title
--spec title(binary()) -> #dom{} | no_match.
+%% @doc title/1 -> Returns the html page title
+-spec title(tuple()) -> #dom{} | no_match.
 
 title(Elem) ->
   Name = <<"title">>,
@@ -64,6 +64,9 @@ title(Elem) ->
     _ ->
       no_match
   end.
+
+%% @doc p/1 -> Returns the first paragraph found
+-spec p(tuple()) -> #dom{} | no_match.
 
 p(Elem) ->
   Name = <<"p">>,
