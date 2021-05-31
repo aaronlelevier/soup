@@ -86,6 +86,12 @@ p(Elem) ->
   end.
 
 
+%% Match Specs - specify the matching behaviour
+
+match_single() -> #match_spec{behaviour = single}.
+
+match_all() -> #match_spec{behaviour = all, data = #{acc => []}}.
+
 
 %% Testing
 

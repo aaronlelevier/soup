@@ -11,3 +11,8 @@
   attrs :: [{atom(), binary()}],
   string :: binary()
 }).
+
+-record(match_spec, {
+  behaviour :: atom(),
+  data :: map()
+}).
