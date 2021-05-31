@@ -59,6 +59,15 @@ p(Elem) ->
   end.
 
 
+find(Tree, Attr) ->
+  ?LOG({Tree, Attr}),
+  case find(Tree, void, match_single([{type, id}, {attr, Attr}])) of
+    no_match ->
+      no_match;
+    {Name, Attrs, String} ->
+      #dom{name = Name, attrs = Attrs, string = String}
+  end.
+
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
@@ -70,6 +79,16 @@ p(Elem) ->
 find({Name, _Attrs, _Content} = Elem, Name, #match_spec{type=name}) ->
   ?LOG({Elem, Name}),
   Elem;
+
+find({_Name, Attrs, Content} = Elem, Name,
+    #match_spec{type=id, attr = Attr}=MatchSpec) ->
+  ?LOG({Elem, Name, MatchSpec}),
+  case lists:member(Attr, Attrs) of
+    true ->
+      Elem;
+    _ ->
+      find(Content, Name, MatchSpec)
+  end;
 
 find({_OtherName, _Attrs, Content} = Elem, Name, MatchSpec)
     when is_tuple(Content) orelse is_list(Content) ->
@@ -96,9 +115,10 @@ find(_ = Elem, Name, _MatchSpec) ->
 
 %% Match Specs - specify the matching behaviour
 
-match_single([{type, Type} | _Options]) -> #match_spec{
+match_single([{type, Type} | Options]) -> #match_spec{
   behaviour = single,
-  type = Type
+  type = Type,
+  attr = proplists:get_value(attr, Options, undefined)
 }.
 
 match_all() -> #match_spec{behaviour = all, data = #{acc => []}}.
