@@ -24,6 +24,10 @@
 
 %% API
 
+%% @doc find/2 -> Returns the 3 item mochiweb tuple of the
+%% found element
+-spec find(tuple(), binary()) -> tuple() | no_match.
+
 find({Name, _Attrs, _Content} = Elem, Name) ->
   ?LOG({Elem, Name}),
   Elem;
@@ -49,7 +53,8 @@ find(_ = Elem, Name) ->
   ?LOG({Elem, Name}),
   no_match.
 
-%% @doc title/2 -> #dom{}
+%% @doc title/2 -> Returns the html page title
+-spec title(binary()) -> #dom{} | no_match.
 
 title(Elem) ->
   Name = <<"title">>,
