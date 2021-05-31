@@ -8,7 +8,6 @@
 -author("Aaron Lelevier").
 -vsn(1.0).
 -include("records.hrl").
-
 -export([]).
 %% debug
 -compile(export_all).
@@ -22,34 +21,36 @@
 -define(LOG(X), void).
 -endif.
 
+
 %% API
 
 %% @doc find/2 -> Returns the 3 item mochiweb tuple of the
 %% found element
--spec find(tuple(), binary()) -> tuple() | no_match.
+-spec find(tuple(), binary(), #match_spec{}) -> tuple() | no_match.
 
-find({Name, _Attrs, _Content} = Elem, Name) ->
+find({Name, _Attrs, _Content} = Elem, Name, _MatchSpec) ->
   ?LOG({Elem, Name}),
   Elem;
 
-find({_OtherName, _Attrs, Content} = Elem, Name) when is_tuple(Content) orelse is_list(Content) ->
+find({_OtherName, _Attrs, Content} = Elem, Name, MatchSpec)
+    when is_tuple(Content) orelse is_list(Content) ->
   ?LOG({Elem, Name}),
-  find(Content, Name);
+  find(Content, Name, MatchSpec);
 
-find({_OtherName, _Attrs, _Content} = Elem, Name) ->
+find({_OtherName, _Attrs, _Content} = Elem, Name, _MatchSpec) ->
   ?LOG({Elem, Name}),
   no_match;
 
-find([H | T] = Elem, Name) ->
+find([H | T] = Elem, Name, MatchSpec) ->
   ?LOG({Elem, Name}),
-  case find(H, Name) of
+  case find(H, Name, MatchSpec) of
     no_match ->
-      find(T, Name);
+      find(T, Name, MatchSpec);
     Match ->
       Match
   end;
 
-find(_ = Elem, Name) ->
+find(_ = Elem, Name, _MatchSpec) ->
   ?LOG({Elem, Name}),
   no_match.
 
@@ -58,7 +59,7 @@ find(_ = Elem, Name) ->
 
 title(Elem) ->
   Name = <<"title">>,
-  case find(Elem, Name) of
+  case find(Elem, Name, match_single()) of
     {Name, Attrs, [Content | []]} ->
       #dom{name = Name, attrs = Attrs, string = Content};
     _ ->
@@ -70,7 +71,7 @@ title(Elem) ->
 
 p(Elem) ->
   Name = <<"p">>,
-  case find(Elem, Name) of
+  case find(Elem, Name, match_single()) of
     {Name, Attrs, [Content | []] = C} ->
       ?LOG(C),
       case is_tuple(Content) of
