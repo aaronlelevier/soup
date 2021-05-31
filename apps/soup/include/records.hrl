@@ -7,6 +7,7 @@
 -author("Aaron Lelevier").
 
 -record(dom, {
-  name,
-  string
+  name :: binary(),
+  attrs :: [{atom(), binary()}],
+  string :: binary()
 }).

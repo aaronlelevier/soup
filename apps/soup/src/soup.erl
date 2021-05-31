@@ -59,11 +59,30 @@ find(_ = Elem, Name) ->
 title(Elem) ->
   Name = <<"title">>,
   case find(Elem, Name) of
-    {<<"title">>, [], [Content|[]]} ->
-      #dom{name = Name, string = Content};
+    {Name, Attrs, [Content | []]} ->
+      #dom{name = Name, attrs = Attrs, string = Content};
     _ ->
       no_match
   end.
+
+p(Elem) ->
+  Name = <<"p">>,
+  case find(Elem, Name) of
+    {Name, Attrs, [Content | []] = C} ->
+      ?LOG(C),
+      case is_tuple(Content) of
+        true ->
+          {_, _, ContentList} = Content,
+          Content2 = lists:nth(1, ContentList);
+        _ ->
+          Content2 = Content
+      end,
+      #dom{name = Name, attrs = Attrs, string = Content2};
+    _ ->
+      no_match
+  end.
+
+
 
 %% Testing
 
