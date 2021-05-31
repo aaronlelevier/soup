@@ -22,13 +22,52 @@
 -endif.
 
 
-%% API
+%%%===================================================================
+%%% API
+%%%===================================================================
+
+%% @doc title/1 -> Returns the html page title
+-spec title(tuple()) -> #dom{} | no_match.
+
+title(Elem) ->
+  Name = <<"title">>,
+  case find(Elem, Name, match_single([{type, name}])) of
+    {Name, Attrs, [Content | []]} ->
+      #dom{name = Name, attrs = Attrs, string = Content};
+    _ ->
+      no_match
+  end.
+
+%% @doc p/1 -> Returns the first paragraph found
+-spec p(tuple()) -> #dom{} | no_match.
+
+p(Elem) ->
+  Name = <<"p">>,
+  case find(Elem, Name, match_single([{type, name}])) of
+    {Name, Attrs, [Content | []] = C} ->
+      ?LOG(C),
+      case is_tuple(Content) of
+        true ->
+          {_, _, ContentList} = Content,
+          Content2 = lists:nth(1, ContentList);
+        _ ->
+          Content2 = Content
+      end,
+      #dom{name = Name, attrs = Attrs, string = Content2};
+    _ ->
+      no_match
+  end.
+
+
+%%%===================================================================
+%%% Internal functions
+%%%===================================================================
 
 %% @doc find/2 -> Returns the 3 item mochiweb tuple of the
 %% found element
 -spec find(tuple(), binary(), #match_spec{}) -> tuple() | no_match.
 
-find({Name, _Attrs, _Content} = Elem, Name, _MatchSpec) ->
+find({Name, _Attrs, _Content} = Elem, Name, #match_spec{type=name}) ->
   ?LOG({Elem, Name}),
   Elem;
 
@@ -54,42 +93,13 @@ find(_ = Elem, Name, _MatchSpec) ->
   ?LOG({Elem, Name}),
   no_match.
 
-%% @doc title/1 -> Returns the html page title
--spec title(tuple()) -> #dom{} | no_match.
-
-title(Elem) ->
-  Name = <<"title">>,
-  case find(Elem, Name, match_single()) of
-    {Name, Attrs, [Content | []]} ->
-      #dom{name = Name, attrs = Attrs, string = Content};
-    _ ->
-      no_match
-  end.
-
-%% @doc p/1 -> Returns the first paragraph found
--spec p(tuple()) -> #dom{} | no_match.
-
-p(Elem) ->
-  Name = <<"p">>,
-  case find(Elem, Name, match_single()) of
-    {Name, Attrs, [Content | []] = C} ->
-      ?LOG(C),
-      case is_tuple(Content) of
-        true ->
-          {_, _, ContentList} = Content,
-          Content2 = lists:nth(1, ContentList);
-        _ ->
-          Content2 = Content
-      end,
-      #dom{name = Name, attrs = Attrs, string = Content2};
-    _ ->
-      no_match
-  end.
-
 
 %% Match Specs - specify the matching behaviour
 
-match_single() -> #match_spec{behaviour = single}.
+match_single([{type, Type} | _Options]) -> #match_spec{
+  behaviour = single,
+  type = Type
+}.
 
 match_all() -> #match_spec{behaviour = all, data = #{acc => []}}.
 
@@ -108,4 +118,3 @@ bytes() ->
 
 tree() ->
   mochiweb_html:parse(bytes()).
-

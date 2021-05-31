@@ -13,6 +13,8 @@
 }).
 
 -record(match_spec, {
-  behaviour :: atom(),
+  behaviour :: single | all,
+  type :: name | attr,
+  attr :: {atom(), binary()},
   data :: map()
 }).
