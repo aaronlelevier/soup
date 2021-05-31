@@ -29,11 +29,11 @@
 %% @doc title/1 -> Returns the html page title
 -spec title(tuple()) -> #dom{} | no_match.
 
-title(Elem) ->
+title(Tree) ->
   Name = <<"title">>,
-  case find(Elem, Name, match_single([{type, name}])) of
-    {Name, Attrs, [Content | []]} ->
-      #dom{name = Name, attrs = Attrs, string = Content};
+  case find(Tree, Name, match_single([{type, name}])) of
+    {Name, Attrs, Content} ->
+      #dom{name = Name, attrs = Attrs, content = Content};
     _ ->
       no_match
   end.
@@ -41,32 +41,28 @@ title(Elem) ->
 %% @doc p/1 -> Returns the first paragraph found
 -spec p(tuple()) -> #dom{} | no_match.
 
-p(Elem) ->
+p(Tree) ->
   Name = <<"p">>,
-  case find(Elem, Name, match_single([{type, name}])) of
-    {Name, Attrs, [Content | []] = C} ->
-      ?LOG(C),
-      case is_tuple(Content) of
-        true ->
-          {_, _, ContentList} = Content,
-          Content2 = lists:nth(1, ContentList);
-        _ ->
-          Content2 = Content
-      end,
-      #dom{name = Name, attrs = Attrs, string = Content2};
+  case find(Tree, Name, match_single([{type, name}])) of
+    {Name, Attrs, Content} ->
+      #dom{name = Name, attrs = Attrs, content = Content};
     _ ->
       no_match
   end.
 
+%% @doc find/2 -> Returns the first element in the tree
+%% that matches based on the attr
+-spec find(tuple(), {binary(), binary()}) -> #dom{} | no_match.
 
 find(Tree, Attr) ->
   ?LOG({Tree, Attr}),
   case find(Tree, void, match_single([{type, id}, {attr, Attr}])) of
     no_match ->
       no_match;
-    {Name, Attrs, String} ->
-      #dom{name = Name, attrs = Attrs, string = String}
+    {Name, Attrs, Content} ->
+      #dom{name = Name, attrs = Attrs, content = Content}
   end.
+
 
 %%%===================================================================
 %%% Internal functions
@@ -76,12 +72,12 @@ find(Tree, Attr) ->
 %% found element
 -spec find(tuple(), binary(), #match_spec{}) -> tuple() | no_match.
 
-find({Name, _Attrs, _Content} = Elem, Name, #match_spec{type=name}) ->
+find({Name, _Attrs, _Content} = Elem, Name, #match_spec{type = name}) ->
   ?LOG({Elem, Name}),
   Elem;
 
 find({_Name, Attrs, Content} = Elem, Name,
-    #match_spec{type=id, attr = Attr}=MatchSpec) ->
+  #match_spec{type = id, attr = Attr} = MatchSpec) ->
   ?LOG({Elem, Name, MatchSpec}),
   case lists:member(Attr, Attrs) of
     true ->
@@ -91,7 +87,7 @@ find({_Name, Attrs, Content} = Elem, Name,
   end;
 
 find({_OtherName, _Attrs, Content} = Elem, Name, MatchSpec)
-    when is_tuple(Content) orelse is_list(Content) ->
+  when is_tuple(Content) orelse is_list(Content) ->
   ?LOG({Elem, Name}),
   find(Content, Name, MatchSpec);
 
@@ -121,6 +117,7 @@ match_single([{type, Type} | Options]) -> #match_spec{
   attr = proplists:get_value(attr, Options, undefined)
 }.
 
+%% TODO: add a find_all/2 and use this #match_spec{} with it
 match_all() -> #match_spec{behaviour = all, data = #{acc => []}}.
 
 

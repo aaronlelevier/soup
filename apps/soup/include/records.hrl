@@ -9,7 +9,7 @@
 -record(dom, {
   name :: binary(),
   attrs :: [{atom(), binary()}],
-  string :: binary()
+  content :: term()
 }).
 
 -record(match_spec, {
