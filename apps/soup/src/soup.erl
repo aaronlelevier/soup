@@ -64,6 +64,16 @@ find(Tree, Attr) ->
   end.
 
 
+%% @doc find_all/2 -> Returns a list of matched elements
+%% credit: Joe Armstrong for original code, then tweaked it:
+%% https://github.com/aaronlelevier/jaerlang2-code/blob/master/code/sherlock/src/sherlock_get_mails.erl#L51
+-spec find_all(tuple(), binary()) -> list().
+
+find_all(Tree, Want) ->
+  {Acc, _} = find_all(Tree, Want, [], []),
+  lists:reverse(Acc).
+
+
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
@@ -107,6 +117,26 @@ find([H | T] = Elem, Name, MatchSpec) ->
 find(_ = Elem, Name, _MatchSpec) ->
   ?LOG({Elem, Name}),
   no_match.
+
+
+%% find/4 -> finds all element with a Tag (Want)
+
+find_all({Want,A,C}=Tree, Want, Acc, L) ->
+  ?LOG({Tree,Want,Acc,L}),
+  find_all(C, Want, [{Want,A,C}|Acc], L);
+
+find_all({Tag,A,C}=Tree, Want, Acc, L) ->
+  ?LOG({Tree,Want,Acc,L}),
+  find_all(C, Want, Acc, L);
+
+find_all([H|T]=Tree, Want, Acc, L) ->
+  ?LOG({Tree,Want,Acc,L}),
+  {Acc1, L1} = find_all(H, Want, Acc, L),
+  ?LOG({Acc1,T,L1}),
+  find_all(T, Want, Acc1, L1);
+
+find_all(_,_,Acc,L) ->
+  {Acc, L}.
 
 
 %% Match Specs - specify the matching behaviour
