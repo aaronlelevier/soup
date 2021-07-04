@@ -125,7 +125,7 @@ find_all({Want,A,C}=Tree, Want, Acc, L) ->
   ?LOG({Tree,Want,Acc,L}),
   find_all(C, Want, [{Want,A,C}|Acc], L);
 
-find_all({Tag,A,C}=Tree, Want, Acc, L) ->
+find_all({_Tag,_A,C}=Tree, Want, Acc, L) ->
   ?LOG({Tree,Want,Acc,L}),
   find_all(C, Want, Acc, L);
 
